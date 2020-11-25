@@ -5,6 +5,9 @@ export default createStore({
     todos: [],
   },
   mutations: {
+    initApp(state, todos) {
+      state.todos = todos;
+    },
     addTodo(state, todo) {
       state.todos.push(todo);
     },
@@ -18,6 +21,9 @@ export default createStore({
     },
   },
   actions: {
+    initApp({ commit }, todos) {
+      commit('initApp', todos);
+    },
     addTodo({ commit }, todo) {
       commit('addTodo', todo);
     },
@@ -31,10 +37,10 @@ export default createStore({
   modules: {},
   getters: {
     getCompleted(state) {
-      return state.todos.filter((todo) => todo.done == false);
+      return state.todos.filter((todo) => todo.done == true);
     },
     getNotCompleted(state) {
-      return state.todos.filter((todo) => todo.done == true);
+      return state.todos.filter((todo) => todo.done == false);
     },
   },
 });

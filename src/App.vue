@@ -6,7 +6,7 @@
           <div class="todo-header">
             <strong
               ><span class="count-todos">{{
-                getCompleted.length
+                getNotCompleted.length
               }}</span></strong
             >
             todo not completed
@@ -26,7 +26,7 @@
           <ul id="sortable" class="list-unstyled">
             <li
               class="ui-state-default"
-              v-for="elem in getCompleted"
+              v-for="elem in revNotCompleted"
               :key="elem.id"
             >
               <div class="checkbox">
@@ -42,19 +42,19 @@
           </ul>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6" v-show="revCompleted != ''">
         <div class="todolist">
           <div class="todo-header">
             <strong
               ><span class="count-todos">{{
-                getNotCompleted.length
+                getCompleted.length
               }}</span></strong
             >
             completed
           </div>
           <h1>Already Done</h1>
           <ul id="done-items" class="list-unstyled">
-            <li v-for="elem in getNotCompleted" :key="elem.id">
+            <li v-for="elem in revCompleted" :key="elem.id">
               {{ elem.title }}
               <button
                 class="remove-item btn btn-default btn-xs pull-right"
@@ -75,8 +75,26 @@ import { mapState, mapActions, mapGetters } from 'vuex';
 export default {
   name: 'App',
   computed: {
-    ...mapState(['todos', 'completed']),
+    ...mapState(['todos']),
     ...mapGetters(['getCompleted', 'getNotCompleted']),
+    revNotCompleted() {
+      return this.getNotCompleted.slice().reverse();
+    },
+    revCompleted() {
+      return this.getCompleted.slice().reverse();
+    },
+  },
+  watch: {
+    todos: {
+      deep: true,
+      handler() {
+        localStorage.setItem('todos', JSON.stringify(this.todos));
+      },
+    },
+  },
+  mounted() {
+    const LS = JSON.parse(localStorage.getItem('todos'));
+    if (JSON.parse(localStorage.getItem('todos'))) this.initApp(LS);
   },
   data() {
     return {
@@ -84,7 +102,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(['addTodo', 'doneTodo', 'removeTodo']),
+    ...mapActions(['initApp', 'addTodo', 'doneTodo', 'removeTodo']),
     addNewTodo() {
       if (!this.title) return;
 
@@ -93,6 +111,8 @@ export default {
         title: this.title,
         done: false,
       });
+
+      this.title = '';
     },
     doneTodoNow(id) {
       this.doneTodo(id);
